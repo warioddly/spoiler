@@ -9,6 +9,7 @@ class SpoilerOverlay extends StatefulWidget {
     super.key,
     required this.child,
     required this.config,
+    this.errorPlaceholder,
   });
 
   /// The widget to obscure while the spoiler is enabled.
@@ -16,6 +17,11 @@ class SpoilerOverlay extends StatefulWidget {
 
   /// Configuration for blur, particles, and gesture behavior.
   final SpoilerConfig config;
+
+  /// Widget displayed in place of [child] if the spoiler shader cannot load.
+  ///
+  /// When omitted, [child] remains visible and the particle effect is skipped.
+  final Widget? errorPlaceholder;
 
   @override
   State<SpoilerOverlay> createState() => _SpoilerOverlayState();
@@ -72,6 +78,10 @@ class _SpoilerOverlayState extends State<SpoilerOverlay> with TickerProviderStat
         listenable: _spoilerController,
         child: widget.child,
         builder: (context, child) {
+          if (_spoilerController.hasError && widget.errorPlaceholder != null) {
+            return widget.errorPlaceholder!;
+          }
+
           return SpoilerRenderObjectWidget(
             onAfterPaint: (canvas, size) => _onPaint(canvas, size),
             onClipPath: (size) {

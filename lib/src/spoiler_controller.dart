@@ -21,6 +21,7 @@ class SpoilerController extends ChangeNotifier {
   ShaderSpoilerDrawer? _drawer;
   int _shaderLoadGeneration = 0;
   bool _shaderInitAttempted = false;
+  bool _hasError = false;
   bool _isEnabled = false;
   bool _isDisposed = false;
 
@@ -32,6 +33,7 @@ class SpoilerController extends ChangeNotifier {
   SpoilerConfig _config = const SpoilerConfig();
 
   bool get isEnabled => _isEnabled;
+  bool get hasError => _hasError;
   bool get isFading =>
       _config.fadeEdgeThickness != null && _fadeCtrl != null && _fadeCtrl!.isAnimating;
   Rect get _splashRect => Rect.fromCircle(center: _fadeCenter, radius: _fadeRadius);
@@ -194,7 +196,9 @@ class SpoilerController extends ChangeNotifier {
       notifyListeners();
     } catch (error) {
       if (!_isDisposed && generation == _shaderLoadGeneration) {
+        _hasError = true;
         debugPrint('SpoilerController: Failed to load shader: $error');
+        notifyListeners();
       }
     }
   }
